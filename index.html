@@ -70,11 +70,11 @@
     </div>
 
     <!--HIT LOCATION-->
-    <svg id="field" viewBox="0 0 500 500">
+    <svg id="field" viewBox="0 0 10 10">
         <image
-            href="FieldDiagram.jpeg"
-            width="500"
-            height="500"
+            href="Collection%20App/FieldDiagram.jpeg"
+            width="10"
+            height="10"
         />  
         <circle id="marker" r="5" fill="red" style="display:none;" />
     </svg>
@@ -134,6 +134,7 @@
         };
         
         sessionData.push(entry);
+        updateCount(pitchoutcome, swingoutcome);
         resetInputs();
     }
 
@@ -157,6 +158,51 @@
         // Clear hidden inputs
         sprayXInput.value = '';
         sprayYInput.value = '';
+    }
+
+    function updateCount(pitchOutcome, swingOutcome) {
+        // Update balls
+        if (pitchOutcome === "B") {
+            count.balls++;
+            if (count.balls >= 4) { // Walk
+                alert("Walk! Count resets.");
+                count.balls = 0;
+                count.strikes = 0;
+            }
+        }
+
+        // Update strikes
+        if (["SS", "SL", "SC"].includes(pitchOutcome)) {
+            count.strikes++;
+            if (count.strikes >= 3) { // Strikeout
+                alert("Strikeout! Count resets and out added.");
+                count.strikes = 0;
+                count.balls = 0;
+                count.outs++;
+            }
+        }
+
+        // Update outs for in-play outs
+        if (pitchOutcome === "IP-Out") {
+            count.outs++;
+            count.balls = 0;
+            count.strikes = 0;
+        }
+
+        // Reset balls & strikes for any in-play hit/sac
+        if (["IP-Hit","IP-Sac"].includes(pitchOutcome)) {
+            count.balls = 0;
+            count.strikes = 0;
+        }
+
+        // Update the display
+        document.getElementById("balls").textContent = count.balls;
+        document.getElementById("strikes").textContent = count.strikes;
+        document.getElementById("outs").textContent = count.outs;
+        if (count.outs >= 3) {
+        count.outs = 0;
+        document.getElementById("outs").textContent = count.outs;
+}
     }
 
 

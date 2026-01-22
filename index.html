@@ -31,18 +31,20 @@
             <option value="SL">Strike Looking</option>
             <option value="SC">Strike Check Swing</option>
             <option value="FB">Foul Ball</option>
+            <option value="FT">Foul Tip</option>
             <option value="B">Ball</option>
+            <option value="HBP">Hit By Pitch</option>
             <option value="IP-Out">In-Play Out</option>
-            <option value="IP-Hit">In-Play Hit</option>
             <option value="IP-Sac">In-Play Sac</option>
+            <option value="1B">Single</option>
+            <option value="2B">Double</option>
+            <option value="3B">Triple</option>
+            <option value="HR">Home Run</option>
         </select>
 
     <!--SWING OUTCOME-->
         <select id="SwingOutcome">
-            <option value="" disabled selected hidden>Swing Outcome</option>
-            <option value="Miss">Miss</option>
-            <option value="FT">Foul Tip</option>
-            <option value="FB">Foul Ball</option>
+            <option value="" disabled selected hidden>Contact Outcome</option>
             <option value="LD">Line Drive</option>
             <option value="GB">Ground Ball</option>
             <option value="PF">Pop Fly</option>
@@ -53,6 +55,8 @@
     
     <!--RECORD EVENT-->
         <button onclick="recordPlay()" style="background-color: #007bff; color: white;">Record Event</button>
+    <!--CLEAR EVENT-->
+        <button onclick="resetInputs()" style="background-color: #ff0000; color: white;">Clear Event</button>
     </div>
 
    <!--COUNT AND OUT INDICATOR-->
@@ -67,7 +71,7 @@
     Balls: <span id="balls">0</span> |
     Strikes: <span id="strikes">0</span> |
     Outs: <span id="outs">0</span>
-    </div>
+    </div> 
 
     <!--HIT LOCATION-->
     <svg id="field" viewBox="0 0 10 10">
@@ -165,17 +169,27 @@
         if (pitchOutcome === "B") {
             count.balls++;
             if (count.balls >= 4) { // Walk
-                alert("Walk! Count resets.");
                 count.balls = 0;
                 count.strikes = 0;
+                const pitchoutcome = 'BB';
             }
         }
 
         // Update strikes
-        if (["SS", "SL", "SC"].includes(pitchOutcome)) {
+        if (["SS", "SL", "SC", "FT"].includes(pitchOutcome)) {
             count.strikes++;
             if (count.strikes >= 3) { // Strikeout
-                alert("Strikeout! Count resets and out added.");
+                count.strikes = 0;
+                count.balls = 0;
+                count.outs++;
+                const pitchoutcome = 'SO';
+
+            }
+        } 
+
+        if (["FB"].includes(pitchOutcome) && count.strikes <2) {
+            count.strikes++;
+            if (count.strikes >= 3) { // Strikeout
                 count.strikes = 0;
                 count.balls = 0;
                 count.outs++;

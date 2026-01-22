@@ -57,14 +57,22 @@
 
    <!--COUNT AND OUT INDICATOR-->
     <div id="input-area" style="background: #f4f4f4; padding: 20px; border-radius: 8px; display: inline-block;">
-        
+        <script>
+            let count = {
+                balls: 0,
+                strikes: 0,
+                outs:0,
+            };
+        </script>
+    Balls: <span id="balls">0</span> |
+    Strikes: <span id="strikes">0</span> |
+    Outs: <span id="outs">0</span>
     </div>
-    
+
     <!--HIT LOCATION-->
     <svg id="field" viewBox="0 0 500 500">
         <image
-            href="Collection App/FieldDigram.jpeg"
-            xlink:href="Collection App/FieldDigram.jpeg"
+            href="CollectionApp/FieldDigram.jpeg"
             width="500"
             height="500"
         />

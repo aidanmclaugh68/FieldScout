@@ -76,7 +76,7 @@
             width="10"
             height="10"
         />  
-        <circle id="marker" r="5" fill="red" style="display:none;" />
+        <circle id="marker" r=".1" fill="red" style="display:none;" />
     </svg>
 
     <input type="hidden" id="sprayX" name="sprayX">
@@ -93,15 +93,15 @@
             field.addEventListener("click", (e) => {
                 const rect = field.getBoundingClientRect();
 
-                hitlocXX = ((e.clientX - rect.left) / rect.width) * 500;
-                hitlocYY = ((e.clientY - rect.top) / rect.height) * 500;
+                hitlocXX = ((e.clientX - rect.left) / rect.width) * 10;
+                hitlocYY = ((e.clientY - rect.top) / rect.height) * 10;
 
                 marker.setAttribute("cx", hitlocXX);
                 marker.setAttribute("cy", hitlocYY);
                 marker.style.display = "block";
 
-                sprayXInput.value = (hitlocXX / 500).toFixed(4);
-                sprayYInput.value = (hitlocYY / 500).toFixed(4);
+                sprayXInput.value = (hitlocXX / 10).toFixed(4);
+                sprayYInput.value = (hitlocYY / 10).toFixed(4);
             });
     </script>
 

@@ -1,0 +1,321 @@
+<HTML>
+    <Head>
+        <title>RIVALRY ANALYTICS</title>   
+    </Head>
+<body>
+
+    <h1>Pitch Tracker</h1>
+    <div class="row">
+        <!--PITCHER NAME-->
+            <input type="text" id="PitcherName" placeholder="Pitcher Name">
+
+        <!--PITCHER HAND-->
+            <select id="PitcherHand">
+                <option value="" disabled selected hidden>Pitcher Hand</option>
+                <option value="L">L</option>
+                <option value="R">R</option>
+            </select>
+
+        <!--PITCH TYPE-->
+            <select id="PitchType">
+                <option value="" disabled selected hidden>Pitch Type</option>
+                <option value="Fastball">Fastball</option>
+                <option value="Curveball">Curveball</option>
+                <option value="Changeup">Changeup</option>
+                <option value="Slider">Slider</option>
+                <option value="Other">Other</option>
+            </select>
+        <!--PITCH VELO-->
+            <input type="number" id="PitchVelo" placeholder="Pitch Velo">
+    </div>
+
+    <!--COUNT AND OUT INDICATOR-->
+        <div class="row">
+            <script>
+                let count = {
+                    balls: 0,
+                    strikes: 0,
+                    outs:0,
+                };
+            </script>
+            Balls: <span id="balls">0</span> |
+            Strikes: <span id="strikes">0</span> |
+            Outs: <span id="outs">0</span>
+        </div> 
+
+        <div class="row">
+            <script>
+                let totalcounts = {
+                    totalballs: 0,
+                    totalstrikes: 0,
+                    totalpitches:0,
+                };
+            </script>
+            Total Balls: <span id="totalballs">0</span> |
+            Total Strikes: <span id="totalstrikes">0</span> |
+            Total Pitches: <span id="totalpitches">0</span>
+        </div> 
+
+    <div class="row">
+        <!--BUTTONS TO ID TARGET/HIT-->
+            <button onclick="settarget()" style="background-color: #007bff; color: white; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); ">Set Target</button>
+            <button onclick="sethit()" style="background-color: #ff0022; color: white; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); ">Set Hit</button>
+        
+        <!--RECORD EVENT-->
+            <button onclick="recordPlay()" style="background-color: #000000; color: white; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); ">Record Event</button>
+        <!--CLEAR EVENT-->
+            <button onclick="resetInputs()" style="background-color: #000000; color: white; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); ">Clear Event</button>
+        <!--NEW PITCHER-->
+            <button onclick="newPitcher()" style="background-color: #000000; color: white; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); ">New Pitcher</button>
+    
+        </div>
+      
+    <!--STRIKEZONE GRID-->
+        <div class="zone">
+            <svg id="strikezone" viewBox="0 0 10 10">
+                <image
+                    href="Collection%20App/Strikezone.jpg"
+                    width="10"
+                    height="10"
+                />  
+                <circle id="target" r=".1" fill="blue" style="display:none;" />
+                <circle id="hit" r=".1" fill="red" style="display:none;" />
+            </svg>
+        </div>
+    <!--EXPORT BUTTON-->
+        <button onclick="downloadCSV()" class="export-btn">Export CSV</button>
+
+    <!--Formatting-->
+        <style>
+            body {
+                margin: 0;
+                padding: 20px;
+                font-family: sans-serif;
+                background-color: #f4f4f4;
+            }
+
+            h1 {
+                text-align: center;
+            }
+            
+            .row {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 10px;
+                border-radius: 8px; 
+            }
+
+            .zone {
+                width: 100%;           
+                max-width: 500px;      
+                margin-left: auto;     
+                margin-right: auto;    
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                aspect-ratio: 1 / 1;
+                border: 2px solid #000000;
+                padding: 10px;
+            }
+
+            .export-btn {
+                position: fixed;   
+                    bottom: 20px;     
+                    left: 20px;    
+        
+                    background-color: #ff0000; 
+                    color: white; 
+                    padding: 12px 20px;
+                    border: none;
+                    cursor: pointer;
+                    box-shadow: 0px 4px 10px rgba(0,0,0,0.3); 
+                    z-index: 1000;     
+            }
+        </style>
+
+    <!--Tracking Set-->
+        <input type="hidden" id="targetsprayXX" name="targetsprayXX">
+        <input type="hidden" id="targetsprayYY" name="targetsprayYY">
+        
+        <script>
+            let targetsprayXX = null;
+            let targetsprayYY = null;
+            let hitsprayXX = null;
+            let hitsprayYY = null;
+            let clickStage = 0;
+            const strikezone = document.getElementById("strikezone");
+            const target = document.getElementById("target");
+            const hit = document.getElementById("hit");
+
+            const targetsprayXXInput = document.getElementById("targetsprayXX");
+            const targetsprayYYInput = document.getElementById("targetsprayYY");
+            const hitsprayXXInput = document.getElementById("hitsprayXX");
+            const hitsprayYYInput = document.getElementById("hitsprayYY");
+
+            
+            function settarget() {
+                clickStage = 0;
+            }
+            
+            function sethit() {
+                clickStage = 1;
+            }
+
+            strikezone.addEventListener("click", (e) => {
+                const rect = strikezone.getBoundingClientRect();
+
+                const xx = ((e.clientX - rect.left) / rect.width) * 10 - 5;
+                const yy = 5 - ((e.clientY - rect.top) / rect.height) * 10;
+
+                if (clickStage === 0) {
+                    target.setAttribute("cx", xx+5);
+                    target.setAttribute("cy", 5-yy);
+                    target.style.display = "block";
+                    targetsprayXX = xx;
+                    targetsprayYY = yy;
+
+                } else {
+                    hit.setAttribute("cx", xx+5);
+                    hit.setAttribute("cy", 5-yy);
+                    hit.style.display = "block";
+                    hitsprayXX = xx;
+                    hitsprayYY = yy;
+                }
+            });
+        </script>
+
+    <!--Record Event-->
+        <script>
+            let sessionData = [];
+
+            function recordPlay() {
+                updateCount(hitsprayXX, hitsprayYY)
+                const entry = { 
+                    pitcher: document.getElementById('PitcherName').value, 
+                    pitcherhand: document.getElementById('PitcherHand').value, 
+                    pitchtype: document.getElementById('PitchType').value, 
+                    pitchvelo: document.getElementById('PitchVelo').value, 
+                    targetsprayXX,
+                    targetsprayYY, 
+                    hitsprayXX,
+                    hitsprayYY, 
+                    balls: document.getElementById("balls").textContent,  
+                    strikes: document.getElementById("strikes").textContent,  
+                    outs: document.getElementById("outs").textContent,
+                    totalballs: document.getElementById("totalballs").textContent,  
+                    totalstrikes: document.getElementById("totalstrikes").textContent,  
+                    totalpitches: document.getElementById("totalpitches").textContent,    
+                };
+                sessionData.push(entry);
+                resetInputs();
+            }
+
+            function resetInputs() {
+                // Reset numeric/text inputs
+                document.getElementById('PitchVelo').value = '';
+
+                // Reset dropdowns
+                document.getElementById('PitchType').selectedIndex = 0;
+
+               // Reset markers
+                document.getElementById("target").style.display = "none";
+                document.getElementById("hit").style.display = "none";
+                document.getElementById("targetsprayXX").value = '';
+                document.getElementById("targetsprayYY").value = '';
+                document.getElementById("hitsprayXX").value = '';
+                document.getElementById("hitsprayYY").value = '';
+            }
+
+            function newPitcher() {
+                // Reset numeric/text inputs
+                document.getElementById('PitchVelo').value = '';
+                document.getElementById('PitcherName').value = '';
+
+                // Reset dropdowns
+                document.getElementById('PitchType').selectedIndex = 0;
+                document.getElementById('PitcherHand').selectedIndex = 0;
+
+               // Reset markers
+                document.getElementById("target").style.display = "none";
+                document.getElementById("hit").style.display = "none";
+                document.getElementById("targetsprayXX").value = '';
+                document.getElementById("targetsprayYY").value = '';
+                document.getElementById("hitsprayXX").value = '';
+                document.getElementById("hitsprayYY").value = '';
+                sessionData = []
+            }
+
+            function updateTable(entry) {
+                const tbody = document.getElementById('tableBody');
+                const row = `<tr>
+                    <td>${entry.pitcher}</td>
+                    <td>${entry.pitcherhand}</td>
+                    <td>${entry.pitchtype}</td>
+                    <td>${entry.pitchvelo || '-'}</td>
+                    <td>${entry.targetsprayXX || '-'}</td>
+                    <td>${entry.targetsprayYY || '-'}</td>
+                    <td>${entry.hitsprayXX || '-'}</td>
+                    <td>${entry.hitsprayYY || '-'}</td>
+                    
+                    <td>${entry.balls || '-'}</td>
+                    <td>${entry.strikes || '-'}</td>
+                    <td>${entry.outs || '-'}</td>
+                    <td>${entry.totalballs || '-'}</td>
+                    <td>${entry.totalstrikes || '-'}</td>
+                    <td>${entry.totalpitches || '-'}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
+
+            function downloadCSV() {
+                let csvContent = "Pitcher,Hand,Type,Velo,TargetXX,TargetYY,HitXX,HitYY,Balls,Strikes,Outs,Total Balls, Total Strikes, Total Pitches\n";
+    
+                sessionData.forEach(row => {
+                    csvContent += `${row.pitcher},${row.pitcherhand},${row.pitchtype},${row.pitchvelo},${row.targetsprayXX},${row.targetsprayYY},${row.hitsprayXX},${row.hitsprayYY},${row.balls},${row.strikes},${row.outs},${row.totalballs},${row.totalstrikes},${row.totalpitches}\n`; 
+                });
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.setAttribute('href', url);
+                const currentName = document.getElementById('PitcherName').value || "Pitcher";
+                a.setAttribute('download', `${currentName}_PitchData.csv`);
+                document.body.appendChild(a); 
+                a.click();
+                document.body.removeChild(a);
+            }
+
+            function updateCount(hitsprayXX, hitsprayYY) {
+                if (hitsprayXX <= 3.75 && hitsprayXX >= -3.75 && hitsprayYY <= 3.45 && hitsprayYY >= -3.57) {
+                    count.strikes++;
+                    totalcounts.totalstrikes++;
+                    totalcounts.totalpitches++;
+                    if (count.strikes >= 3) { // Strikeout
+                        count.strikes = 0;
+                        count.balls = 0;
+                        count.outs++;
+                    }
+                }
+
+                else {
+                    count.balls++;
+                    totalcounts.totalballs++;
+                    totalcounts.totalpitches++;
+                    if (count.balls >= 4) { // Walk
+                        count.balls = 0;
+                        count.strikes = 0;
+                    }
+                }
+
+                document.getElementById("balls").textContent = count.balls;
+                document.getElementById("strikes").textContent = count.strikes;
+                document.getElementById("outs").textContent = count.outs;
+                document.getElementById("totalballs").textContent = totalcounts.totalballs;
+                document.getElementById("totalstrikes").textContent = totalcounts.totalstrikes;
+                document.getElementById("totalpitches").textContent = totalcounts.totalpitches;
+                if (count.outs >= 3) {
+                    count.outs = 0;
+                    document.getElementById("outs").textContent = count.outs;
+                }
+            }
+        </script>

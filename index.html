@@ -72,6 +72,7 @@
     Strikes: <span id="strikes">0</span> |
     Outs: <span id="outs">0</span>
     </div> 
+    
 
     <!--HIT LOCATION-->
     <svg id="field" viewBox="0 0 10 10">
@@ -111,6 +112,9 @@
 
     <!--EXPORT CSV-->
     <button onclick="downloadCSV()"" style="background-color: #ff0000; color: white;">Export CSV</button>
+
+    <!--PITCH TRACKER-->
+    <a href="Pitch%20track.html">Go to Pitch Tracker</a>
 
 
 <script>
@@ -193,6 +197,7 @@
                 count.strikes = 0;
                 count.balls = 0;
                 count.outs++;
+                const pitchoutcome = 'SO';
             }
         }
 
